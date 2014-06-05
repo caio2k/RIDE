@@ -12,7 +12,12 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from wx.lib.pubsub import Publisher as WxPublisher
+try:
+    from wx.lib.pubsub import Publisher
+    WxPublisher = Publisher()
+except ImportError:
+    from wx.lib.pubsub import pub
+    WxPublisher = pub.getDefaultPublisher()
 import inspect
 import messagetype
 import sys
@@ -68,7 +73,7 @@ class RideMessage(object):
                                            exception=err, level='ERROR'))
 
     def _publish(self, msg):
-        WxPublisher().sendMessage(msg.topic, msg)
+        WxPublisher.sendMessage(msg.topic, msg)
 
 
 class RideLog(RideMessage):

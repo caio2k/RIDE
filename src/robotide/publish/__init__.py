@@ -118,7 +118,9 @@ the `robotide.pluginapi` module and plugins should import them there.
 
 
 from robotide.context import WX_VERSION
-if WX_VERSION > '2.9':
+if WX_VERSION > '3.0':
+    from wx.lib.pubsub import setuparg1
+elif WX_VERSION > '2.9':
     from wx.lib.pubsub import setupv1
 from messages import *
 from publisher import Publisher
