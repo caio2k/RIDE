@@ -1,4 +1,4 @@
-#  Copyright 2008-2014 Nokia Solutions and Networks
+#  Copyright 2008-2015 Nokia Solutions and Networks
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -12,6 +12,8 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
+import re
+
 from .charwidth import get_char_width
 from .misc import seq2str2
 from .unic import unic
@@ -21,6 +23,7 @@ _MAX_ASSIGN_LENGTH = 200
 _MAX_ERROR_LINES = 40
 _MAX_ERROR_LINE_LENGTH = 78
 _ERROR_CUT_EXPLN = '    [ Message content over the limit has been removed. ]'
+_TAGS_RE = re.compile(r'\s*tags:(.*)', re.IGNORECASE)
 
 
 def cut_long_message(msg):
@@ -70,10 +73,17 @@ def _count_virtual_line_length(line):
 
 
 def format_assign_message(variable, value, cut_long=True):
-    value = unic(value) if variable.startswith('$') else seq2str2(value)
+    formatter = {'$': unic, '@': seq2str2, '&': _dict_to_str}[variable[0]]
+    value = formatter(value)
     if cut_long and len(value) > _MAX_ASSIGN_LENGTH:
         value = value[:_MAX_ASSIGN_LENGTH] + '...'
     return '%s = %s' % (variable, value)
+
+def _dict_to_str(d):
+    if not d:
+        return '{ }'
+    return '{ %s }' % ' | '.join('%s=%s' % (unic(k), unic(v))
+                                 for k, v in d.items())
 
 
 def get_console_length(text):
@@ -98,3 +108,16 @@ def _lose_width(text, diff):
         lost += get_console_length(text[-1])
         text = text[:-1]
     return text
+
+
+def split_tags_from_doc(doc):
+    doc = doc.rstrip()
+    tags = []
+    if not doc:
+        return doc, tags
+    lines = doc.splitlines()
+    match = _TAGS_RE.match(lines[-1])
+    if match:
+        doc = '\n'.join(lines[:-1]).rstrip()
+        tags = [tag.strip() for tag in match.group(1).split(',')]
+    return doc, tags

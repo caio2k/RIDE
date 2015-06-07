@@ -1,4 +1,4 @@
-#  Copyright 2008-2014 Nokia Solutions and Networks
+#  Copyright 2008-2015 Nokia Solutions and Networks
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -11,8 +11,6 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-
-from __future__ import with_statement
 
 from contextlib import contextmanager
 
@@ -172,11 +170,17 @@ class _ExecutionContext(object):
     def get_handler(self, name):
         return self.namespace.get_handler(name)
 
-    def warn(self, message):
-        self.output.warn(message)
-
     def trace(self, message):
         self.output.trace(message)
 
+    def debug(self, message):
+        self.output.debug(message)
+
     def info(self, message):
         self.output.info(message)
+
+    def warn(self, message):
+        self.output.warn(message)
+
+    def fail(self, message):
+        self.output.fail(message)

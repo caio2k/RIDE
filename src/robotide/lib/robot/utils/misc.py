@@ -1,4 +1,4 @@
-#  Copyright 2008-2014 Nokia Solutions and Networks
+#  Copyright 2008-2015 Nokia Solutions and Networks
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@ import inspect
 import sys
 
 from .unic import unic
+from .platform import IRONPYTHON
 
 
 def printable_name(string, code_style=False):
@@ -106,9 +107,12 @@ def getdoc(item):
 
 
 # On IronPython sys.stdxxx.isatty() always returns True
-if sys.platform != 'cli':
+if not IRONPYTHON:
 
     def isatty(stream):
+        # first check if buffer was detached
+        if hasattr(stream, 'buffer') and stream.buffer is None:
+            return False
         return hasattr(stream, 'isatty') and stream.isatty()
 
 else:

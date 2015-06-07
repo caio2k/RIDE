@@ -1,4 +1,4 @@
-#  Copyright 2008-2014 Nokia Solutions and Networks
+#  Copyright 2008-2015 Nokia Solutions and Networks
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -468,7 +468,7 @@ class Variable(object):
         if name.startswith('$') and value == []:
             value = ''
         if isinstance(value, basestring):
-            value = [value]  # Must support scalar lists until RF 2.8 (issue 939)
+            value = [value]
         self.value = value
         self.comment = Comment(comment)
 
@@ -572,6 +572,7 @@ class UserKeyword(TestCase):
         self.return_ = Return('[Return]', self)
         self.timeout = Timeout('[Timeout]', self)
         self.teardown = Fixture('[Teardown]', self)
+        self.tags = Tags('[Tags]', self)
         self.steps = []
 
     _setters = {'documentation': lambda s: s.doc.populate,
@@ -579,17 +580,18 @@ class UserKeyword(TestCase):
                 'arguments': lambda s: s.args.populate,
                 'return': lambda s: s.return_.populate,
                 'timeout': lambda s: s.timeout.populate,
-                'teardown': lambda s: s.teardown.populate}
+                'teardown': lambda s: s.teardown.populate,
+                'tags': lambda s: s.tags.populate}
 
     def _add_to_parent(self, test):
         self.parent.keywords.append(test)
 
     @property
     def settings(self):
-        return [self.args, self.doc, self.timeout, self.teardown, self.return_]
+        return [self.args, self.doc, self.tags, self.timeout, self.teardown, self.return_]
 
     def __iter__(self):
-        for element in [self.args, self.doc, self.timeout] \
+        for element in [self.args, self.doc, self.tags, self.timeout] \
                         + self.steps + [self.teardown, self.return_]:
             yield element
 
@@ -633,9 +635,9 @@ class Step(object):
     def __init__(self, content, comment=None):
         self.assign = list(self._get_assigned_vars(content))
         try:
-            self.keyword = content[len(self.assign)]
+            self.name = content[len(self.assign)]
         except IndexError:
-            self.keyword = None
+            self.name = None
         self.args = content[len(self.assign)+1:]
         self.comment = Comment(comment)
 
@@ -646,7 +648,7 @@ class Step(object):
             yield item
 
     def is_comment(self):
-        return not (self.assign or self.keyword or self.args)
+        return not (self.assign or self.name or self.args)
 
     def is_for_loop(self):
         return False
@@ -655,7 +657,7 @@ class Step(object):
         return True
 
     def as_list(self, indent=False, include_comment=True):
-        kw = [self.keyword] if self.keyword is not None else []
+        kw = [self.name] if self.name is not None else []
         comments = self.comment.as_list() if include_comment else []
         data = self.assign + kw + self.args + comments
         if indent:

@@ -1,4 +1,4 @@
-#  Copyright 2008-2014 Nokia Solutions and Networks
+#  Copyright 2008-2015 Nokia Solutions and Networks
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -78,7 +78,7 @@ class Setting(object):
         return self.is_set()
 
     def __iter__(self):
-        return iter(self.value)
+        return iter(self.value or ())
 
     def __unicode__(self):
         return unicode(self.value or '')

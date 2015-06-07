@@ -1,4 +1,4 @@
-#  Copyright 2008-2014 Nokia Solutions and Networks
+#  Copyright 2008-2015 Nokia Solutions and Networks
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ class XmlLogger(ResultVisitor):
             return NullMarkupWriter()
         try:
             writer = XmlWriter(path, encoding='UTF-8')
-        except EnvironmentError, err:
+        except EnvironmentError as err:
             raise DataError("Opening output file '%s' failed: %s" %
                             (path, err.strerror))
         writer.start('robot', {'generator': get_full_version(generator),
@@ -66,12 +66,14 @@ class XmlLogger(ResultVisitor):
         self._writer.element('msg', msg.message, attrs)
 
     def start_keyword(self, kw):
-        attrs = {'name': kw.name, 'type': kw.type}
+        attrs = {'name': kw.kwname, 'library': kw.libname, 'type': kw.type}
         if kw.timeout:
             attrs['timeout'] = unicode(kw.timeout)
         self._writer.start('kw', attrs)
+        self._write_list('tags', 'tag', (unic(t) for t in kw.tags))
         self._writer.element('doc', kw.doc)
         self._write_list('arguments', 'arg', (unic(a) for a in kw.args))
+        self._write_list('assign', 'var', kw.assign)
 
     def end_keyword(self, kw):
         self._write_status(kw)

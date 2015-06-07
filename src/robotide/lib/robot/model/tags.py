@@ -1,4 +1,4 @@
-#  Copyright 2008-2014 Nokia Solutions and Networks
+#  Copyright 2008-2015 Nokia Solutions and Networks
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-from robot.utils import Matcher, NormalizedDict, setter
+from robot.utils import Matcher, NormalizedDict, setter, unic
 
 
 class Tags(object):
@@ -29,7 +29,7 @@ class Tags(object):
         return self._normalize(tags)
 
     def _normalize(self, tags):
-        normalized = NormalizedDict(((t, 1) for t in tags), ignore='_')
+        normalized = NormalizedDict(((unic(t), 1) for t in tags), ignore='_')
         for removed in '', 'NONE':
             if removed in normalized:
                 normalized.pop(removed)

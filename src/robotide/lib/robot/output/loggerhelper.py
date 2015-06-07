@@ -1,4 +1,4 @@
-#  Copyright 2008-2014 Nokia Solutions and Networks
+#  Copyright 2008-2015 Nokia Solutions and Networks
 #
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
@@ -91,15 +91,15 @@ class Message(BaseMessage):
             raise DataError("Invalid log level '%s'" % level)
         return level, html
 
-    def _get_message(self):
+    @property
+    def message(self):
         if callable(self._message):
             self._message = self._message()
         return self._message
 
-    def _set_message(self, message):
+    @message.setter
+    def message(self, message):
         self._message = message
-
-    message = property(_get_message, _set_message)
 
 
 class IsLogged:
