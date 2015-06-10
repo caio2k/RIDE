@@ -340,7 +340,15 @@ class _VariableStash(object):
                     self.set(variable.name, value.resolve(self._vars), variable_table.source)
             except robotapi.DataError:
                 if robotapi.is_var(variable.name):
-                    self.set(variable.name, '', variable_table.source)
+                    val = self._empty_value_for_variable_type(variable.name)
+                    self.set(variable.name, val, variable_table.source)
+
+    def _empty_value_for_variable_type(self, name):
+        if name[0] == '$':
+            return ''
+        if name[0] == '@':
+            return []
+        return {}
 
     def set_from_file(self, varfile_path, args):
         for name, value in VariableFileSetter(None)._import_if_needed(varfile_path, args):
@@ -520,7 +528,6 @@ class DatafileRetriever(object):
         resources.update(res)
         for child in datafile.children:
             resources.update(self.get_resources_from(child))
-
         return resources
 
     def _add_resource(self, res, ctx, items):

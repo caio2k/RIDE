@@ -199,3 +199,9 @@ class ListVariableNameValidator(_NameValidator):
     @property
     def _validation_method(self):
         return self._controller.validate_list_variable_name
+
+
+class DictionaryVariableNameValidator(_NameValidator):
+    @property
+    def _validation_method(self):
+        return self._controller.validate_dict_variable_name
