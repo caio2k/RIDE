@@ -135,10 +135,9 @@ class Namespace(object):
         if self._blank(start) or self._looks_like_variable(start):
             sugs.update(self._variable_suggestions(controller, start, ctx))
         else:
-            sugs.update(self._variable_suggestions(controller, '${' + start,
-                                                   ctx))
-            sugs.update(self._variable_suggestions(controller, '@{' + start,
-                                                   ctx))
+            for prefix in ['${', '@{', '&{']:
+                sugs.update(self._variable_suggestions(
+                    controller, prefix+start, ctx))
         if self._blank(start) or not self._looks_like_variable(start):
             sugs.update(self._keyword_suggestions(datafile, start, ctx))
         sugs_list = list(sugs)
@@ -158,10 +157,8 @@ class Namespace(object):
         return start == ''
 
     def _looks_like_variable(self, start):
-        return (len(start) == 1 and start.startswith('$') or
-                start.startswith('@')) \
-            or (len(start) >= 2 and start.startswith('${') or
-                start.startswith('@{'))
+        return len(start) == 1 and start[0] in ['$', '@', '&'] \
+            or (len(start) >= 2 and start[:2] in ['${', '@{', '&{'])
 
     def _variable_suggestions(self, controller, start, ctx):
         datafile = controller.datafile
@@ -354,10 +351,18 @@ class _VariableStash(object):
         for name, value in VariableFileSetter(None)._import_if_needed(varfile_path, args):
             self.set(name, value, varfile_path)
 
+    def _get_prefix(self, value):
+        if utils.is_dict_like(value):
+            return '&'
+        elif utils.is_list_like(value):
+            return '@'
+        else:
+            return '$'
+
     def __iter__(self):
         for name, value in self._vars.store.data.items():
             source = self._sources[name]
-            prefix = '@' if utils.is_list_like(value) else '$'
+            prefix = self._get_prefix(value)
             name = '{0}{{{1}}}'.format(prefix, name)
             if source == self.ARGUMENT_SOURCE:
                 yield ArgumentInfo(name, value)
