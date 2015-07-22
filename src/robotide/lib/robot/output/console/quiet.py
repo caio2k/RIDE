@@ -12,19 +12,20 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 
-RESERVED_KEYWORDS = ['for', 'while', 'break', 'continue', 'end',
-                     'if', 'else', 'elif', 'else if', 'return']
+import sys
+
+from .highlighting import HighlightingStream
 
 
-class Reserved(object):
-    ROBOT_LIBRARY_SCOPE = 'GLOBAL'
+class QuietOutput(object):
 
-    def get_keyword_names(self):
-        return RESERVED_KEYWORDS
+    def __init__(self, colors='AUTO', stderr=None):
+        self._stderr = HighlightingStream(stderr or sys.__stderr__, colors)
 
-    def run_keyword(self, name, args):
-        error = "'%s' is a reserved keyword." % name.title()
-        if name in ('else', 'else if'):
-            error += (" It must be in uppercase (%s) when used as a marker"
-                      " with 'Run Keyword If'." % name.upper())
-        raise Exception(error)
+    def message(self, msg):
+        if msg.level in ('WARN', 'ERROR'):
+            self._stderr.error(msg.message, msg.level)
+
+
+class NoOutput(object):
+    pass
