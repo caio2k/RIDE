@@ -469,13 +469,14 @@ class ForLoopStepController(StepController):
 
     def _get_cell_position(self, col):
         until_range = len(self._step.vars) + 1
+        flavor = self._step.flavor
         if col == 0:
             return CellPosition(CellType.MANDATORY, None)
         if col < until_range:
             return CellPosition(CellType.ASSIGN, None)
         if col == until_range:
             return CellPosition(CellType.MANDATORY, None)
-        if not self._step.range:
+        if 'RANGE' not in flavor:
             return CellPosition(CellType.OPTIONAL, None)
         if col <= until_range + 1:
             return CellPosition(CellType.MANDATORY, None)
