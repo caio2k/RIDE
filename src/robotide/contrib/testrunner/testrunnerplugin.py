@@ -50,6 +50,7 @@ from Queue import Queue
 import wx
 import wx.stc
 from wx.lib.embeddedimage import PyEmbeddedImage
+import webbrowser
 
 from robot.output import LEVELS
 from robot.utils import robottime
@@ -318,12 +319,14 @@ class TestRunnerPlugin(Plugin):
     def OnShowReport(self, evt):
         '''Called when the user clicks on the "Report" button'''
         if self._report_file:
-            wx.LaunchDefaultBrowser("file:%s" % os.path.abspath(self._report_file))
+            webbrowser.open("%s" % os.path.abspath(self._report_file))
+            #wx.LaunchDefaultBrowser("file:%s" % os.path.abspath(self._report_file))
 
     def OnShowLog(self, evt):
         '''Called when the user clicks on the "Log" button'''
         if self._log_file:
-            wx.LaunchDefaultBrowser("file:%s" % os.path.abspath(self._log_file))
+            webbrowser.open("%s" % os.path.abspath(self._log_file))
+            #wx.LaunchDefaultBrowser("file:%s" % os.path.abspath(self._log_file))
 
     def OnProfileSelection(self, event):
         self.save_setting("profile", event.GetString())
